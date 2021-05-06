@@ -1,1 +1,6 @@
-/home/convict/.Xresources
+xterm*termName: xterm-256color
+xterm*VT100.Translations: #override \
+                 Ctrl Shift <Key>V:    insert-selection(SELECT) \n\
+                 Ctrl Shift <Key>C:    copy-selection(SELECT)
+XTerm.VT100.color4: CornflowerBlue
+XTerm*visualBell:  #override False
