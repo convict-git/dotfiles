@@ -256,7 +256,7 @@ auto filetype c,cpp nnoremap <leader>gd :lcd %:p:h <bar> silent call RunGDB()<CR
 autocmd filetype cpp nnoremap <leader>rn :lcd %:p:h <bar> silent !cd %:p:h && tmux split-window "cp-random %"<CR><C-l>
 " CF Submit
 autocmd filetype cpp nnoremap <F5> :lcd %:p:h <bar> !rm -rfv a.out && clear && clear && g++ -std=gnu++17 -Wall -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 % && ulimit -s 256000 && echo "Compiled" && time ./a.out
-auto filetype cpp nnoremap <F6> :lcd %:p:h <bar> silent call Cpcfsubmit()<CR><C-l>
+" auto filetype cpp nnoremap <F6> :lcd %:p:h <bar> silent call Cpcfsubmit()<CR><C-l>
 " CF Open problem set
 auto filetype cpp nnoremap <F7> :lcd %:p:h <bar> silent call CpcfopenSet()<CR><C-l>
 " CF Open specific problem
@@ -267,7 +267,7 @@ nnoremap ; :read ~/Dropbox/myfiles/sport_coding/cplib/snippets/
 nnoremap <C-b> :cd %:p:h <bar> call AddTestCase()<CR>
 nnoremap <leader>t :call ShowTestCase()<CR>
 " nnoremap <C-f> :call SearchWord()<CR>
-autocmd filetype c,cpp nnoremap <F12> :call Mrconvict()<CR>
+autocmd filetype c,cpp nnoremap <F12> :lcd %:p:h <bar> call Cpcfsubmit()<CR>
 " nnoremap <S-CR> i<CR><Esc> " Needed for GVIm
 autocmd filetype c,cpp nnoremap <leader>ln :lnext<CR>
 nnoremap <leader>ad :let @+=expand("%:p") <bar> echo expand("%:p")<CR>
@@ -385,6 +385,7 @@ function! Mrconvict()
    silent exec '1,8d | w'
 endfunction
 
+" Santization checks and submit
 function! SearchWord()
    exec 'lcd %:p:h'
    let token = input ('Enter token: ')
@@ -434,22 +435,22 @@ function! AddTestCase()
 endfunction
 
 function! Cpcfsubmit()
-   silent exec '0r ~/Dropbox/myfiles/sport_coding/cplib/templates/mrconvict.cpp'
    exec '%y+'
-   exec 'lcd %:p:h'
-   exec '!cd %:p:h && echo ''{''\"filename\":\"$(pwd)/%\", \"submit\":\"0\", \"pconfig\":$(cat pconfig.json)''}'' | nc -uw 0 localhost 8889'
-   exec '!sleep 0.01'
-   silent exec '1,8d | w'
+   exec '!clear && clear && yank_to_submit % 3'
+   let confirmf = input ('Submit? (y/n): ')
+   if (confirmf != 'n')
+      exec '!cd %:p:h && echo ''{''\"filename\":\"$(pwd)/%\", \"submit\":\"0\", \"pconfig\":$(cat pconfig.json)''}'' | nc -uw 1 localhost 8889'
+   endif
 endfunction
 
 function! CpcfopenSet()
-   exec '!cd %:p:h && echo ''{''\"filename\":\"$(pwd)/%\", \"submit\":\"1\", \"pconfig\":$(cat pconfig.json)''}'' | nc -uw 0 localhost 8889'
-   exec '!sleep 0.01'
+   exec '!clear && clear && echo "Opening complete problem set..."'
+   exec '!cd %:p:h && echo ''{''\"filename\":\"$(pwd)/%\", \"submit\":\"1\", \"pconfig\":$(cat pconfig.json)''}'' | nc -uw 1 localhost 8889'
 endfunction
 
 function! Cpcfopen()
-   exec '!cd %:p:h && echo ''{''\"filename\":\"$(pwd)/%\", \"submit\":\"2\", \"pconfig\":$(cat pconfig.json)''}'' | nc -uw 0 localhost 8889'
-   exec '!sleep 0.01'
+   exec '!clear && clear && echo "Opening problem..."'
+   exec '!cd %:p:h && echo ''{''\"filename\":\"$(pwd)/%\", \"submit\":\"2\", \"pconfig\":$(cat pconfig.json)''}'' | nc -uw 1 localhost 8889'
 endfunction
 
 function! VimDiff(i)
